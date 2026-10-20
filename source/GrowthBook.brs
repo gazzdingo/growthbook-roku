@@ -1465,7 +1465,7 @@ function GrowthBook__getBucketRanges(numVariations as integer, coverage as doubl
     for each w in weights
         weightSum# = weightSum# + w
     end for
-    if weightSum# < 0.99 or weightSum# > 1.01
+    if weightSum# < 0.99# or weightSum# > 1.01#
         equalWeight# = 1# / numVariations
         weights = []
         for i = 0 to numVariations - 1
@@ -1903,8 +1903,10 @@ function GrowthBook__isRuleIncluded(rule as object, featureKey as string) as boo
         end for
         if not inAnyRange return false
     else if rule.coverage <> invalid and rule.variations = invalid
+        coverage# = m._toDouble(rule.coverage)
+        if coverage# = 0 return false
         n = m._gbhash(context.seed, context.hashValue, context.hashVersion)
-        if n = invalid or n >= m._toDouble(rule.coverage) return false
+        if n = invalid or n > coverage# return false
     end if
     
     return true
