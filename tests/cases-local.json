@@ -1,0 +1,1067 @@
+{
+  "specVersion": "local",
+  "evalCondition": [
+    [
+      "string condition - number attribute",
+      {
+        "n": "10"
+      },
+      {
+        "n": 10
+      },
+      true
+    ],
+    [
+      "string condition - float attribute 10.0",
+      {
+        "n": "10"
+      },
+      {
+        "n": 10.0
+      },
+      true
+    ],
+    [
+      "string condition - float attribute 1.5",
+      {
+        "n": "1.5"
+      },
+      {
+        "n": 1.5
+      },
+      true
+    ],
+    [
+      "string condition - boolean attribute",
+      {
+        "n": "true"
+      },
+      {
+        "n": true
+      },
+      true
+    ],
+    [
+      "string condition - false attribute",
+      {
+        "n": "false"
+      },
+      {
+        "n": false
+      },
+      true
+    ],
+    [
+      "string condition - null attribute is 'null'",
+      {
+        "n": "null"
+      },
+      {
+        "n": null
+      },
+      true
+    ],
+    [
+      "string condition - missing attribute is 'null'",
+      {
+        "n": "null"
+      },
+      {},
+      true
+    ],
+    [
+      "string condition - empty vs null attribute",
+      {
+        "n": ""
+      },
+      {
+        "n": null
+      },
+      false
+    ],
+    [
+      "string condition - array attribute",
+      {
+        "n": "a,b"
+      },
+      {
+        "n": [
+          "a",
+          "b"
+        ]
+      },
+      true
+    ],
+    [
+      "string condition - object attribute",
+      {
+        "n": "[object Object]"
+      },
+      {
+        "n": {
+          "a": 1
+        }
+      },
+      true
+    ],
+    [
+      "string condition - different string",
+      {
+        "n": "abc"
+      },
+      {
+        "n": "abd"
+      },
+      false
+    ],
+    [
+      "number condition - numeric string attribute",
+      {
+        "n": 10
+      },
+      {
+        "n": "10"
+      },
+      true
+    ],
+    [
+      "number condition - '10.0' attribute",
+      {
+        "n": 10
+      },
+      {
+        "n": "10.0"
+      },
+      true
+    ],
+    [
+      "number condition - padded numeric string",
+      {
+        "n": 12
+      },
+      {
+        "n": " 12 "
+      },
+      true
+    ],
+    [
+      "number condition - numeric-prefix string",
+      {
+        "n": 12
+      },
+      {
+        "n": "12abc"
+      },
+      false
+    ],
+    [
+      "number condition 0 - empty string attribute",
+      {
+        "n": 0
+      },
+      {
+        "n": ""
+      },
+      true
+    ],
+    [
+      "number condition 1 - true attribute",
+      {
+        "n": 1
+      },
+      {
+        "n": true
+      },
+      true
+    ],
+    [
+      "number condition 0 - false attribute",
+      {
+        "n": 0
+      },
+      {
+        "n": false
+      },
+      true
+    ],
+    [
+      "number condition 0 - null attribute",
+      {
+        "n": 0
+      },
+      {
+        "n": null
+      },
+      true
+    ],
+    [
+      "number condition 0 - missing attribute",
+      {
+        "n": 0
+      },
+      {},
+      true
+    ],
+    [
+      "number condition - non-numeric string",
+      {
+        "n": 0
+      },
+      {
+        "n": "abc"
+      },
+      false
+    ],
+    [
+      "number condition 1 - float attribute 1.0",
+      {
+        "n": 1
+      },
+      {
+        "n": 1.0
+      },
+      true
+    ],
+    [
+      "number condition 1.0 - integer attribute",
+      {
+        "n": 1.0
+      },
+      {
+        "n": 1
+      },
+      true
+    ],
+    [
+      "number condition 1.5 - string attribute",
+      {
+        "n": 1.5
+      },
+      {
+        "n": "1.5"
+      },
+      true
+    ],
+    [
+      "number condition 5 - single element array",
+      {
+        "n": 5
+      },
+      {
+        "n": [
+          5
+        ]
+      },
+      true
+    ],
+    [
+      "boolean condition true - string 'true'",
+      {
+        "b": true
+      },
+      {
+        "b": "true"
+      },
+      true
+    ],
+    [
+      "boolean condition false - string 'false' is truthy",
+      {
+        "b": false
+      },
+      {
+        "b": "false"
+      },
+      false
+    ],
+    [
+      "boolean condition false - string '0' is truthy",
+      {
+        "b": false
+      },
+      {
+        "b": "0"
+      },
+      false
+    ],
+    [
+      "boolean condition false - number 0",
+      {
+        "b": false
+      },
+      {
+        "b": 0
+      },
+      true
+    ],
+    [
+      "boolean condition false - empty string",
+      {
+        "b": false
+      },
+      {
+        "b": ""
+      },
+      true
+    ],
+    [
+      "boolean condition false - missing attribute",
+      {
+        "b": false
+      },
+      {},
+      false
+    ],
+    [
+      "boolean condition false - null attribute",
+      {
+        "b": false
+      },
+      {
+        "b": null
+      },
+      false
+    ],
+    [
+      "boolean condition true - empty array is truthy",
+      {
+        "b": true
+      },
+      {
+        "b": []
+      },
+      true
+    ],
+    [
+      "boolean condition true - number 2",
+      {
+        "b": true
+      },
+      {
+        "b": 2
+      },
+      true
+    ],
+    [
+      "null condition - null attribute",
+      {
+        "n": null
+      },
+      {
+        "n": null
+      },
+      true
+    ],
+    [
+      "null condition - missing attribute",
+      {
+        "n": null
+      },
+      {},
+      true
+    ],
+    [
+      "null condition - false attribute",
+      {
+        "n": null
+      },
+      {
+        "n": false
+      },
+      false
+    ],
+    [
+      "array condition - number vs float elements",
+      {
+        "a": [
+          1,
+          2
+        ]
+      },
+      {
+        "a": [
+          1.0,
+          2
+        ]
+      },
+      true
+    ],
+    [
+      "array condition - string vs number element",
+      {
+        "a": [
+          "1"
+        ]
+      },
+      {
+        "a": [
+          1
+        ]
+      },
+      false
+    ],
+    [
+      "array condition - string attribute",
+      {
+        "a": [
+          "a"
+        ]
+      },
+      {
+        "a": "a"
+      },
+      false
+    ],
+    [
+      "object condition - keys are case-sensitive",
+      {
+        "o": {
+          "a": 1
+        }
+      },
+      {
+        "o": {
+          "A": 1
+        }
+      },
+      false
+    ],
+    [
+      "object condition - number vs string value",
+      {
+        "o": {
+          "a": 1
+        }
+      },
+      {
+        "o": {
+          "a": "1"
+        }
+      },
+      false
+    ],
+    [
+      "object condition - equal",
+      {
+        "o": {
+          "a": 1,
+          "b": [
+            true
+          ]
+        }
+      },
+      {
+        "o": {
+          "a": 1,
+          "b": [
+            true
+          ]
+        }
+      },
+      true
+    ]
+  ],
+  "feature": [
+    [
+      "prerequisite - non-gate failing skips to next rule",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 0,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": true
+                    }
+                  }
+                ],
+                "force": 1
+              },
+              {
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 2,
+        "on": true,
+        "off": false,
+        "source": "force"
+      }
+    ],
+    [
+      "prerequisite - non-gate with missing parent skips rule",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "f": {
+            "defaultValue": 0,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": true
+                    }
+                  }
+                ],
+                "force": 1
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 0,
+        "on": false,
+        "off": true,
+        "source": "defaultValue"
+      }
+    ],
+    [
+      "prerequisite - non-gate without condition passes",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 1,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p"
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 2,
+        "on": true,
+        "off": false,
+        "source": "force"
+      }
+    ],
+    [
+      "prerequisite - gate false behaves as non-gate",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": "def",
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": true
+                    },
+                    "gate": false
+                  }
+                ],
+                "force": "forced"
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": "def",
+        "on": true,
+        "off": false,
+        "source": "defaultValue"
+      }
+    ],
+    [
+      "prerequisite - gate failing blocks the feature",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 0,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": true
+                    },
+                    "gate": true
+                  }
+                ],
+                "force": 1
+              },
+              {
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": null,
+        "on": false,
+        "off": true,
+        "source": "prerequisite"
+      }
+    ],
+    [
+      "prerequisite - gate with condition passing on off parent",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 1,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": false
+                    },
+                    "gate": true
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 2,
+        "on": true,
+        "off": false,
+        "source": "force"
+      }
+    ],
+    [
+      "prerequisite - gate with missing parent and no condition passes",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "f": {
+            "defaultValue": 0,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "gate": true
+                  }
+                ],
+                "force": 1
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 1,
+        "on": true,
+        "off": false,
+        "source": "force"
+      }
+    ],
+    [
+      "prerequisite - gate on second rule blocks after first rule skipped",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 0,
+            "rules": [
+              {
+                "condition": {
+                  "id": "nope"
+                },
+                "force": 1
+              },
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": true
+                    },
+                    "gate": true
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": null,
+        "on": false,
+        "off": true,
+        "source": "prerequisite"
+      }
+    ],
+    [
+      "prerequisite - condition on falsy parent value 0",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": 0
+          },
+          "f": {
+            "defaultValue": 0,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": 0
+                    }
+                  }
+                ],
+                "force": 1
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 1,
+        "on": true,
+        "off": false,
+        "source": "force"
+      }
+    ],
+    [
+      "prerequisite - non-gate failing skips experiment rule",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 9,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": true
+                    }
+                  }
+                ],
+                "key": "e",
+                "variations": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 9,
+        "on": true,
+        "off": false,
+        "source": "defaultValue"
+      }
+    ],
+    [
+      "prerequisite - gate passing on off parent runs experiment rule",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          },
+          "f": {
+            "defaultValue": 9,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "p",
+                    "condition": {
+                      "value": false
+                    },
+                    "gate": true
+                  }
+                ],
+                "key": "e",
+                "variations": [
+                  0,
+                  1
+                ],
+                "coverage": 1
+              }
+            ]
+          }
+        }
+      },
+      "f",
+      {
+        "value": 0,
+        "on": false,
+        "off": true,
+        "source": "experiment",
+        "experimentResult": {
+          "inExperiment": true,
+          "hashUsed": true,
+          "variationId": 0,
+          "value": 0
+        }
+      }
+    ],
+    [
+      "prerequisite - non-gate cyclic",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "a": {
+            "defaultValue": 1,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "b",
+                    "condition": {
+                      "value": 1
+                    }
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          },
+          "b": {
+            "defaultValue": 1,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "a",
+                    "condition": {
+                      "value": 1
+                    }
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "a",
+      {
+        "value": null,
+        "on": false,
+        "off": true,
+        "source": "cyclicPrerequisite"
+      }
+    ],
+    [
+      "prerequisite - gate cyclic",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "a": {
+            "defaultValue": 1,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "b",
+                    "gate": true
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          },
+          "b": {
+            "defaultValue": 1,
+            "rules": [
+              {
+                "parentConditions": [
+                  {
+                    "id": "a",
+                    "gate": true
+                  }
+                ],
+                "force": 2
+              }
+            ]
+          }
+        }
+      },
+      "a",
+      {
+        "value": null,
+        "on": false,
+        "off": true,
+        "source": "cyclicPrerequisite"
+      }
+    ]
+  ],
+  "run": [
+    [
+      "prerequisite - missing parent fails condition",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {}
+      },
+      {
+        "key": "t",
+        "variations": [
+          0,
+          1
+        ],
+        "parentConditions": [
+          {
+            "id": "p",
+            "condition": {
+              "value": true
+            }
+          }
+        ]
+      },
+      0,
+      false,
+      false
+    ],
+    [
+      "prerequisite - gate passing condition on off parent",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          }
+        }
+      },
+      {
+        "key": "t",
+        "variations": [
+          0,
+          1
+        ],
+        "parentConditions": [
+          {
+            "id": "p",
+            "condition": {
+              "value": false
+            },
+            "gate": true
+          }
+        ]
+      },
+      1,
+      true,
+      true
+    ],
+    [
+      "prerequisite - no condition on off parent passes",
+      {
+        "attributes": {
+          "id": "1"
+        },
+        "features": {
+          "p": {
+            "defaultValue": false
+          }
+        }
+      },
+      {
+        "key": "t",
+        "variations": [
+          0,
+          1
+        ],
+        "parentConditions": [
+          {
+            "id": "p",
+            "gate": true
+          }
+        ]
+      },
+      1,
+      true,
+      true
+    ]
+  ]
+}
