@@ -56,6 +56,7 @@ function GrowthBook(config as object) as object
         _chooseVariation: GrowthBook__chooseVariation,
         _inRange: GrowthBook__inRange,
         _deepEqual: GrowthBook__deepEqual,
+        _jsEquals: GrowthBook__jsEquals,
         _compare: GrowthBook__compare,
         _trackExperiment: GrowthBook__trackExperiment,
         _trackFeatureUsage: GrowthBook__trackFeatureUsage,
@@ -447,6 +448,7 @@ function GrowthBook_evalFeature(key as string) as object
                     while true
                         ' 1. Prerequisites
                         if rule.parentConditions <> invalid
+                            prerequisiteSkipped = false
                             for each parent in rule.parentConditions
                                 parentResult = m.evalFeature(parent.id)
                                 if parentResult.source = "cyclicPrerequisite"
@@ -456,20 +458,22 @@ function GrowthBook_evalFeature(key as string) as object
                                     return result
                                 end if
                                 
-                                gateFailed = (GrowthBook_toBoolean(parent.gate) and not parentResult.on)
-                                conditionFailed = false
-                                if parent.condition <> invalid
-                                    tempGB = GrowthBook({ attributes: { value: parentResult.value }, savedGroups: m.savedGroups, http: m.http })
-                                    if not tempGB._evaluateConditions(parent.condition) then conditionFailed = true
-                                end if
-                                
-                                if gateFailed or conditionFailed
-                                    result.source = "prerequisite"
-                                    m._evaluationStack.Pop()
-                                    m._trackFeatureUsage(key, result)
-                                    return result
+                                parentCondition = parent.condition
+                                if parentCondition = invalid then parentCondition = {}
+                                tempGB = GrowthBook({ attributes: { value: parentResult.value }, savedGroups: m.savedGroups, http: m.http })
+                                if not tempGB._evaluateConditions(parentCondition)
+                                    ' Gate prerequisites block the feature; others skip this rule
+                                    if GrowthBook_toBoolean(parent.gate)
+                                        result.source = "prerequisite"
+                                        m._evaluationStack.Pop()
+                                        m._trackFeatureUsage(key, result)
+                                        return result
+                                    end if
+                                    prerequisiteSkipped = true
+                                    exit for
                                 end if
                             end for
+                            if prerequisiteSkipped then exit while
                         end if
                         
                         ' 2. Rule Condition
@@ -640,14 +644,10 @@ function GrowthBook__evaluateExperiment(rule as object, result as object) as obj
                     return result
                 end if
                 
-                gateFailed = (GrowthBook_toBoolean(parent.gate) and not parentResult.on)
-                conditionFailed = false
-                if parent.condition <> invalid
-                    tempGB = GrowthBook({ attributes: { value: parentResult.value }, savedGroups: m.savedGroups, http: m.http })
-                    if not tempGB._evaluateConditions(parent.condition) then conditionFailed = true
-                end if
-                
-                if gateFailed or conditionFailed
+                parentCondition = parent.condition
+                if parentCondition = invalid then parentCondition = {}
+                tempGB = GrowthBook({ attributes: { value: parentResult.value }, savedGroups: m.savedGroups, http: m.http })
+                if not tempGB._evaluateConditions(parentCondition)
                     m._log("Prerequisite failed")
                     return result
                 end if
@@ -1241,13 +1241,13 @@ function GrowthBook__evaluateConditions(condition as object) as boolean
             
             ' If no operators found, treat as direct equality
             if not hasOperator
-                if not m._deepEqual(value, condition_value)
+                if not m._jsEquals(value, condition_value)
                     return false
                 end if
             end if
         else
             ' Direct equality
-            if not m._deepEqual(value, condition_value)
+            if not m._jsEquals(value, condition_value)
                 return false
             end if
         end if
@@ -1532,28 +1532,19 @@ end function
 ' Handles null, primitives, arrays, and objects
 ' ===================================================================
 function GrowthBook__deepEqual(val1 as dynamic, val2 as dynamic) as boolean
-    ' Handle null/invalid
-    if val1 = invalid and val2 = invalid
-        return true
-    end if
-    if val1 = invalid or val2 = invalid
+    ' Compares like JSON.stringify(val1) = JSON.stringify(val2), minus key order
+    kind1 = GrowthBook_jsonKind(val1)
+    if kind1 <> GrowthBook_jsonKind(val2)
         return false
     end if
     
-    ' Type must match
-    type1 = type(val1)
-    type2 = type(val2)
-    if type1 <> type2
-        return false
-    end if
-    
-    ' Primitives
-    if type1 = "roString" or type1 = "roInteger" or type1 = "roFloat" or type1 = "roBoolean" or type1 = "String" or type1 = "Integer" or type1 = "Boolean"
+    if kind1 = "null" then return true
+    if kind1 = "number" or kind1 = "string" or kind1 = "boolean"
         return val1 = val2
     end if
     
     ' Arrays
-    if type1 = "roArray"
+    if kind1 = "array"
         if val1.Count() <> val2.Count()
             return false
         end if
@@ -1565,28 +1556,56 @@ function GrowthBook__deepEqual(val1 as dynamic, val2 as dynamic) as boolean
         return true
     end if
     
-    ' Objects
-    if type1 = "roAssociativeArray"
-        ' Check if all keys in val1 exist in val2 with same values
+    ' Objects (keys are compared case-sensitively)
+    if kind1 = "object"
+        if val1.Count() <> val2.Count()
+            return false
+        end if
         for each key in val1
-            if not val2.DoesExist(key)
+            found = false
+            for each key2 in val2
+                if key2 = key
+                    found = true
+                    exit for
+                end if
+            end for
+            if not found
                 return false
             end if
             if not m._deepEqual(val1[key], val2[key])
                 return false
             end if
         end for
-        ' Check if val2 has any extra keys
-        for each key in val2
-            if not val1.DoesExist(key)
-                return false
-            end if
-        end for
         return true
     end if
     
-    ' Default: use equality
-    return val1 = val2
+    return false
+end function
+
+' ===================================================================
+' Plain (non-operator) condition equality, matching the JS SDK:
+' string -> String(value), number -> Number(value), boolean -> truthiness,
+' null -> null only, array/object -> JSON equality.
+' A missing attribute is null, as in the JS SDK.
+' ===================================================================
+function GrowthBook__jsEquals(value as dynamic, conditionValue as dynamic) as boolean
+    kind = GrowthBook_jsonKind(conditionValue)
+    if kind = "string"
+        return GrowthBook_jsString(value) = conditionValue
+    end if
+    if kind = "number"
+        n = GrowthBook_jsNumber(value)
+        if n = invalid then return false
+        return n = conditionValue
+    end if
+    if kind = "boolean"
+        if value = invalid then return false
+        return GrowthBook_toBoolean(value) = conditionValue
+    end if
+    if kind = "null"
+        return value = invalid
+    end if
+    return m._deepEqual(value, conditionValue)
 end function
 
 ' ===================================================================
@@ -1886,6 +1905,70 @@ function GrowthBook_toBoolean(value as dynamic) as boolean
     
     ' Other objects (AA, Array) are truthy
     return true
+end function
+
+' JSON type of a value: "null", "number", "string", "boolean", "array", "object" or "other"
+function GrowthBook_jsonKind(value as dynamic) as string
+    if value = invalid then return "null"
+    t = type(value)
+    if t = "roString" or t = "String" then return "string"
+    if t = "roBoolean" or t = "Boolean" then return "boolean"
+    if t = "roInteger" or t = "Integer" or t = "roFloat" or t = "Float" or t = "roDouble" or t = "Double" or t = "roLongInteger" or t = "LongInteger" then return "number"
+    if t = "roArray" then return "array"
+    if t = "roAssociativeArray" then return "object"
+    return "other"
+end function
+
+' JS String(value)
+function GrowthBook_jsString(value as dynamic) as string
+    kind = GrowthBook_jsonKind(value)
+    if kind = "null" then return "null"
+    if kind = "string" then return value
+    if kind = "boolean"
+        if value then return "true"
+        return "false"
+    end if
+    if kind = "number"
+        t = type(value)
+        if t = "roInteger" or t = "Integer" or t = "roLongInteger" or t = "LongInteger"
+            return Str(value).Trim()
+        end if
+        if Abs(value) < 2147483647 and value = Int(value)
+            return Str(Int(value)).Trim()
+        end if
+        return Str(value).Trim().Replace("e+", "e")
+    end if
+    if kind = "array"
+        out = ""
+        for i = 0 to value.Count() - 1
+            if i > 0 then out = out + ","
+            if value[i] <> invalid then out = out + GrowthBook_jsString(value[i])
+        end for
+        return out
+    end if
+    return "[object Object]"
+end function
+
+' JS Number(value); returns invalid for NaN
+function GrowthBook_jsNumber(value as dynamic) as dynamic
+    kind = GrowthBook_jsonKind(value)
+    if kind = "null" then return 0
+    if kind = "number" then return value
+    if kind = "boolean"
+        if value then return 1
+        return 0
+    end if
+    if kind = "array" then return GrowthBook_jsNumber(GrowthBook_jsString(value))
+    if kind <> "string" then return invalid
+    s = value.Trim()
+    if s = "" then return 0
+    if CreateObject("roRegex", "^[+-]?([0-9]+[.]?[0-9]*|[.][0-9]+)([eE][+-]?[0-9]+)?$", "").IsMatch(s)
+        return Val(s)
+    end if
+    if CreateObject("roRegex", "^0[xX][0-9a-fA-F]+$", "").IsMatch(s)
+        return Val(Mid(s, 3), 16)
+    end if
+    return invalid
 end function
 
 ' ===================================================================
