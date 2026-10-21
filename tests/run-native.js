@@ -6,7 +6,7 @@ const path = require('path');
  * GrowthBook Native BrightScript Test Runner (Headless)
  * 
  * Runs the native BrightScript test runner using the '@rokucommunity/brs' interpreter.
- * Validates SDK logic against cases.json in actual BrightScript execution.
+ * Validates SDK logic against cases.json and cases-local.json in actual BrightScript execution.
  */
 
 const projectRoot = path.join(__dirname, '..');
@@ -19,18 +19,22 @@ const entryRelative = 'tests/test-entry.brs';
 // Create a temporary entry point
 const entryContent = `
 sub Main()
-    results = RunCasesJsonTests("pkg:/tests/cases.json")
-    
-    if results.error <> invalid
-        print "ERROR: " + results.error
-        print "--- NATIVE TESTS FAILED ---"
-        return
-    end if
+    ' cases.json is the vendored spec; cases-local.json holds SDK-specific cases
+    failed = false
+    for each casesPath in ["pkg:/tests/cases.json", "pkg:/tests/cases-local.json"]
+        results = RunCasesJsonTests(casesPath)
+        if results.error <> invalid
+            print "ERROR: " + results.error + " (" + casesPath + ")"
+            failed = true
+        else if results.totalFailed <> invalid and results.totalFailed > 0
+            failed = true
+        else if results.totalPassed = invalid or results.totalPassed = 0
+            print "ERROR: No tests were run (" + casesPath + ")"
+            failed = true
+        end if
+    end for
 
-    if results.totalFailed <> invalid and results.totalFailed > 0
-        print "--- NATIVE TESTS FAILED ---"
-    else if results.totalPassed = invalid or results.totalPassed = 0
-        print "ERROR: No tests were run"
+    if failed
         print "--- NATIVE TESTS FAILED ---"
     else
         print "--- NATIVE TESTS PASSED ---"
@@ -72,18 +76,15 @@ try {
         process.exit(1);
     }
 
-    if (stdout.includes('--- NATIVE TESTS PASSED ---')) {
+    // Only an explicit pass marker from a clean interpreter exit counts as a pass.
+    // A brs runtime error stops the run before the summary is printed.
+    if (result.status === 0 && stdout.includes('--- NATIVE TESTS PASSED ---')) {
         console.log('✅ Native Spec Tests Passed!');
         process.exit(0);
     }
 
-    // If brs crashed (no output at all)
-    if (result.status !== 0 && !stdout.includes('TEST SUMMARY')) {
-        console.error('❌ Native interpreter exited with code ' + result.status);
-        process.exit(1);
-    }
-
-    console.log('✅ Native Spec Tests Passed!');
+    console.error('❌ Native interpreter did not finish the run (exit code ' + result.status + ', no pass marker)');
+    process.exit(1);
 
 } catch (err) {
     console.error('Error running native tests:', err);
